@@ -1,12 +1,14 @@
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
-  try {
-    await mongoose.connect("mongodb+srv://admin:smart-event@cluster0.htxltv3.mongodb.net/smart-campus");
-    console.log("MongoDB Connected");
-  } catch (err) {
-    console.log(err);
-  }
+    try {
+        await mongoose.connect("mongodb://127.0.0.1:27017/smart-campus");
+
+        console.log("MongoDB Connected");
+    } catch (error) {
+        console.error("Database Connection Error:", error.message);
+        process.exit(1);
+    }
 };
 
 module.exports = connectDB;

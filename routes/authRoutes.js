@@ -1,102 +1,119 @@
 const express = require("express");
 const router = express.Router();
-
-const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const User = require("../models/User");
+const authMiddleware = require("../models/middleware/authMiddleware");
 
 
 router.post("/register", async (req, res) => {
     try {
-        
         const { name, email, password } = req.body;
 
-        if (!name || !email || !password) {
+        let user = await User.findOne({ email });
+
+        if (user) {
             return res.status(400).json({
-                message: "All fields required "
+                message: "User already exists"
             });
         }
-        const jwt = require("jsonwebtoken");
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        user = new User({
+            name,
+            email,
+            password: hashedPassword
+        });
+
+        await user.save();
+
+        const payload = {
+            user: {
+                id: user.id
+            }
+        };
+
+        const token = jwt.sign(
+            payload,
+            "yourSecretKey",
+            { expiresIn: "1h" }
+        );
+
+        res.status(201).json({
+            token
+        });
+
+    } catch (error) {
+        console.error("Register Error:", error);
+        res.status(500).json({
+            message: "Server Error"
+        });
+    }
+});
 
 
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        
-        if (!email || !password) {
-            return res.status(400).json({
-                message: "All fields required "
-            });
-        }
-
-   
         const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(400).json({
-                message: "User not found "
+                message: "Invalid Credentials"
             });
         }
 
-      
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
 
         if (!isMatch) {
             return res.status(400).json({
-                message: "Invalid credentials "
+                message: "Invalid Credentials"
             });
         }
 
-      
+        const payload = {
+            user: {
+                id: user.id
+            }
+        };
+
         const token = jwt.sign(
-            { id: user._id },
-            "secretkey",   // 
-            { expiresIn: "1d" }
+            payload,
+            "yourSecretKey",
+            { expiresIn: "1h" }
         );
 
-      
-        res.status(200).json({
-            message: "Login successful ",
+        res.json({
             token
         });
 
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.error("Login Error:", error);
         res.status(500).json({
-            message: "Server error "
+            message: "Server Error"
         });
     }
 });
 
-     
-        const existingUser = await User.findOne({ email });
 
-        if (existingUser) {
-            return res.status(400).json({
-                message: "User already exists "
-            });
-        }
+router.get("/profile", authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id)
+            .select("-password");
 
-       
-        const hashedPassword = await bcrypt.hash(password, 10);
+        res.json(user);
 
-        const newUser = new User({
-            name,
-            email,
-            password: hashedPassword
-        });
-
-        await newUser.save();
-
-       
-        res.status(201).json({
-            message: "User registered successfully "
-        });
-
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.error("Profile Error:", error);
         res.status(500).json({
-            message: "Server Error "
+            message: "Server Error"
         });
     }
 });
