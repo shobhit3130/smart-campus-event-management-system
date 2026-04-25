@@ -92,11 +92,6 @@ node server.js
 
 * 🔐 User Login System (JWT Authentication)
 * 🔒 Password Hashing using bcrypt
-* 📊 Performance Analysis System
-* 🎤 Mock Interview Simulator APIs
-* 🧠 Weak Area Detection Logic
-* 📅 Preparation Tracker
-* 🤖 Basic AI Feedback System
 
 ---
 
