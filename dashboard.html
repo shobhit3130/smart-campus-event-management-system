@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Events - Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./styles.css">
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Mock Data removed (now fetched from backend) ---
+
+        // --- Components ---
+
+        const Navbar = ({ currentView, setView }) => (
+            <nav className="dashboard-nav glass-panel" style={{ borderRadius: '0', borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
+                <div className="nav-brand">
+                    <i className="ph ph-graduation-cap"></i>
+                    Smart Campus
+                </div>
+                
+                <div className="nav-links" style={{ display: 'flex', gap: '1.5rem' }}>
+                    <a href="#" className={`nav-link ${currentView === 'home' ? 'active' : ''}`} onClick={() => setView('home')}>Home</a>
+                    <a href="#" className={`nav-link ${currentView === 'directory' ? 'active' : ''}`} onClick={() => setView('directory')}>Browse Events</a>
+                    <a href="#" className={`nav-link ${currentView === 'registrations' ? 'active' : ''}`} onClick={() => setView('registrations')}>My Registrations</a>
+                </div>
+
+                <div className="nav-profile">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: '1rem' }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                            JD
+                        </div>
+                        <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>John Doe</span>
+                    </div>
+                    <button className="btn logout-btn" onClick={() => window.location.href='login.html'}>
+                        <i className="ph ph-sign-out"></i> Logout
+                    </button>
+                </div>
+            </nav>
+        );
+
+        const EventCard = ({ event, onSelect, registered }) => (
+            <div className="glass-panel event-card">
+                {event.image && (
+                    <div style={{ height: '160px', borderRadius: '8px', marginBottom: '1rem', overflow: 'hidden', backgroundImage: `url(${event.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                    </div>
+                )}
+                <div className="event-badge">{event.category}</div>
+                <h3>{event.title}</h3>
+                <p>{event.description}</p>
+                <div className="event-meta">
+                    <span><i className="ph ph-calendar-blank"></i> {event.date}</span>
+                    <span><i className="ph ph-clock"></i> {event.time}</span>
+                    <span><i className="ph ph-map-pin"></i> {event.venue}</span>
+                </div>
+                <div className="event-actions">
+                    <button className="btn" style={{ flex: 2 }} onClick={() => onSelect(event)}>
+                        View Details
+                    </button>
+                    {registered && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', borderRadius: '8px', padding: '0 1rem', flex: 1, fontWeight: '600' }}>
+                            <i className="ph ph-check-circle" style={{ marginRight: '0.4rem' }}></i> Registered
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+
+        const Modal = ({ event, onClose, onRegister, isRegistered }) => {
+            if (!event) return null;
+            return (
+                <div className="modal-overlay animate-fade">
+                    <div className="modal-content glass-panel">
+                        <button className="modal-close" onClick={onClose}><i className="ph ph-x"></i></button>
+                        
+                        {event.image && (
+                            <div style={{ height: '200px', borderRadius: '12px', marginBottom: '1.5rem', backgroundImage: `url(${event.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                            </div>
+                        )}
+                        
+                        <div className="event-badge" style={{ fontSize: '0.85rem' }}>{event.category}</div>
+                        <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{event.title}</h2>
+                        <p style={{ color: 'var(--primary)', fontWeight: '600', marginBottom: '1.5rem' }}>Organized by {event.organizer} • {event.department}</p>
+                        
+                        <div className="modal-meta-grid">
+                            <div className="meta-box glass-panel">
+                                <i className="ph ph-calendar-blank"></i>
+                                <div>
+                                    <small>Date</small>
+                                    <strong>{event.date}</strong>
+                                </div>
+                            </div>
+                            <div className="meta-box glass-panel">
+                                <i className="ph ph-clock"></i>
+                                <div>
+                                    <small>Time</small>
+                                    <strong>{event.time}</strong>
+                                </div>
+                            </div>
+                            <div className="meta-box glass-panel">
+                                <i className="ph ph-map-pin"></i>
+                                <div>
+                                    <small>Venue</small>
+                                    <strong>{event.venue}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ marginBottom: '2rem' }}>
+                            <h3 style={{ marginBottom: '0.75rem', fontSize: '1.25rem' }}>About this event</h3>
+                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>{event.description}</p>
+                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', marginTop: '0.5rem' }}>
+                                Don't miss this opportunity to connect with peers and experts. Register now to secure your spot as seats are limited!
+                            </p>
+                        </div>
+
+                        {isRegistered ? (
+                            <button className="btn" style={{ width: '100%', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid #34d399', cursor: 'default' }}>
+                                <i className="ph ph-check-circle" style={{ fontSize: '1.25rem' }}></i> You are registered for this event
+                            </button>
+                        ) : (
+                            <button className="btn" style={{ width: '100%', fontSize: '1.1rem', padding: '1rem' }} onClick={() => onRegister(event.id)}>
+                                <i className="ph ph-ticket" style={{ fontSize: '1.25rem' }}></i> Register Now
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const HomeView = ({ events, onSelectEvent, registeredIds }) => {
+            const recommended = events.slice(0, 3); // Mock logic
+            const upcoming = events.slice(3, 5);
+            
+            return (
+                <div className="animate-fade">
+                    <div className="dashboard-section-header">
+                        <h2>Dashboard Overview</h2>
+                        <span style={{ color: 'var(--text-muted)' }}>Welcome back, John!</span>
+                    </div>
+
+                    <div className="stats-grid">
+                        <div className="glass-panel stat-card">
+                            <div className="stat-icon"><i className="ph ph-ticket"></i></div>
+                            <div className="stat-info">
+                                <h3>{registeredIds.length}</h3>
+                                <p>Registered Events</p>
+                            </div>
+                        </div>
+                        <div className="glass-panel stat-card">
+                            <div className="stat-icon"><i className="ph ph-star"></i></div>
+                            <div className="stat-info">
+                                <h3>12</h3>
+                                <p>New Recommendations</p>
+                            </div>
+                        </div>
+                        <div className="glass-panel stat-card">
+                            <div className="stat-icon"><i className="ph ph-fire"></i></div>
+                            <div className="stat-info">
+                                <h3>3</h3>
+                                <p>Events this Week</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-section-header" style={{ marginTop: '3rem' }}>
+                        <h2>Recommended for You</h2>
+                        <button className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>Update Interests</button>
+                    </div>
+                    <div className="events-grid">
+                        {recommended.map(ev => <EventCard key={ev.id} event={ev} onSelect={onSelectEvent} registered={registeredIds.includes(ev.id)} />)}
+                    </div>
+
+                    <div className="dashboard-section-header" style={{ marginTop: '3rem' }}>
+                        <h2>Upcoming Campus Events</h2>
+                    </div>
+                    <div className="events-grid">
+                        {upcoming.map(ev => <EventCard key={ev.id} event={ev} onSelect={onSelectEvent} registered={registeredIds.includes(ev.id)} />)}
+                    </div>
+                </div>
+            );
+        };
+
+        const DirectoryView = ({ events, onSelectEvent, registeredIds }) => {
+            const [searchTerm, setSearchTerm] = useState("");
+            const [filterCategory, setFilterCategory] = useState("All");
+
+            const filteredEvents = events.filter(ev => {
+                const matchesSearch = ev.title.toLowerCase().includes(searchTerm.toLowerCase()) || ev.department.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesCategory = filterCategory === "All" || ev.category === filterCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            return (
+                <div className="animate-fade">
+                    <div className="dashboard-section-header">
+                        <h2>Event Directory</h2>
+                    </div>
+
+                    <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                        <div className="input-group" style={{ margin: 0, flex: '1 1 300px' }}>
+                            <label>Search Events</label>
+                            <div style={{ position: 'relative' }}>
+                                <i className="ph ph-magnifying-glass" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}></i>
+                                <input 
+                                    type="text" 
+                                    className="input-field" 
+                                    style={{ paddingLeft: '2.5rem' }} 
+                                    placeholder="Search by title, department..."
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="input-group" style={{ margin: 0, flex: '1 1 200px' }}>
+                            <label>Category</label>
+                            <select 
+                                className="input-field" 
+                                value={filterCategory}
+                                onChange={e => setFilterCategory(e.target.value)}
+                                style={{ appearance: 'none', backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2399f6e4%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
+                            >
+                                <option value="All">All Categories</option>
+                                <option value="Seminar">Seminar</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Competition">Competition</option>
+                                <option value="Hackathon">Hackathon</option>
+                                <option value="Cultural">Cultural</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {filteredEvents.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+                            <i className="ph ph-magnifying-glass" style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}></i>
+                            <h3>No events found</h3>
+                            <p>Try adjusting your search filters.</p>
+                        </div>
+                    ) : (
+                        <div className="events-grid">
+                            {filteredEvents.map(ev => <EventCard key={ev.id} event={ev} onSelect={onSelectEvent} registered={registeredIds.includes(ev.id)} />)}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const RegistrationsView = ({ events, registeredIds, onSelectEvent }) => {
+            const registeredEvents = events.filter(ev => registeredIds.includes(ev.id));
+
+            return (
+                <div className="animate-fade">
+                    <div className="dashboard-section-header">
+                        <h2>My Registrations</h2>
+                    </div>
+
+                    {registeredEvents.length === 0 ? (
+                        <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+                            <i className="ph ph-ticket" style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}></i>
+                            <h3>You haven't registered for any events yet.</h3>
+                            <p style={{ marginBottom: '1.5rem' }}>Browse the directory to find events matching your interests!</p>
+                        </div>
+                    ) : (
+                        <div className="events-grid">
+                            {registeredEvents.map(ev => <EventCard key={ev.id} event={ev} onSelect={onSelectEvent} registered={true} />)}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [currentView, setCurrentView] = useState('home');
+            const [selectedEvent, setSelectedEvent] = useState(null);
+            const [registeredIds, setRegisteredIds] = useState([]); 
+            const [events, setEvents] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                // Fetch events and registrations from backend
+                Promise.all([
+                    fetch('/api/events').then(res => res.json()),
+                    fetch('/api/user/registrations').then(res => res.json())
+                ])
+                .then(([eventsData, registrationsData]) => {
+                    setEvents(eventsData);
+                    setRegisteredIds(registrationsData.registeredIds);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error("Error fetching data:", err);
+                    setLoading(false);
+                });
+            }, []);
+
+            const handleRegister = (id) => {
+                fetch('/api/events/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventId: id })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        setRegisteredIds(data.registeredIds);
+                        alert("Successfully registered for the event!");
+                    }
+                })
+                .catch(err => console.error(err));
+            };
+
+            if (loading) return <div style={{ color: 'var(--text-main)', textAlign: 'center', padding: '5rem' }}>Loading dashboard data...</div>;
+
+            return (
+                <div className="app-container">
+                    <Navbar currentView={currentView} setView={setCurrentView} />
+                    
+                    <main className="dashboard-content">
+                        {currentView === 'home' && <HomeView events={events} onSelectEvent={setSelectedEvent} registeredIds={registeredIds} />}
+                        {currentView === 'directory' && <DirectoryView events={events} onSelectEvent={setSelectedEvent} registeredIds={registeredIds} />}
+                        {currentView === 'registrations' && <RegistrationsView events={events} registeredIds={registeredIds} onSelectEvent={setSelectedEvent} />}
+                    </main>
+
+                    {selectedEvent && (
+                        <Modal 
+                            event={selectedEvent} 
+                            onClose={() => setSelectedEvent(null)} 
+                            onRegister={handleRegister} 
+                            isRegistered={registeredIds.includes(selectedEvent.id)}
+                        />
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

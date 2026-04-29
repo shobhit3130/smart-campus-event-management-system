@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Events - Login</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+   
+    <link rel="stylesheet" href="./styles.css">
+    
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    
+   
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const Login = () => {
+            const handleLogin = (e) => {
+                e.preventDefault();
+               
+                alert("Login button clicked!");
+            };
+
+            return (
+                <div className="app-container">
+                    <div className="login-wrapper animate-fade">
+                        <div className="glass-panel login-card">
+                            <div className="login-header">
+                                <i className="ph ph-graduation-cap" style={{ fontSize: '3rem', color: 'var(--primary)', marginBottom: '1rem' }}></i>
+                                <h1>Smart Campus</h1>
+                                <p>Event Management System</p>
+                            </div>
+                            
+                            <form onSubmit={handleLogin}>
+                                <div className="input-group">
+                                    <label htmlFor="email">Email Address</label>
+                                    <input 
+                                        type="email" 
+                                        id="email" 
+                                        className="input-field" 
+                                        placeholder="student@university.edu" 
+                                        required 
+                                        defaultValue="demo@student.edu"
+                                    />
+                                </div>
+                                
+                                <div className="input-group">
+                                    <label htmlFor="password">Password</label>
+                                    <input 
+                                        type="password" 
+                                        id="password" 
+                                        className="input-field" 
+                                        placeholder="••••••••" 
+                                        required 
+                                        defaultValue="password123"
+                                    />
+                                </div>
+                                
+                                <div className="input-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <label style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+                                        <input type="checkbox" /> Remember me
+                                    </label>
+                                    <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '0.875rem' }}>Forgot password?</a>
+                                </div>
+                                
+                                <button type="submit" className="btn" style={{ width: '100%', marginTop: '1rem' }}>
+                                    <i className="ph ph-sign-in"></i> Sign In
+                                </button>
+                                
+                                <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                                    Don't have an account? <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Register here</a>
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Login />);
+    </script>
+</body> 
+</html>
