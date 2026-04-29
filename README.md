@@ -18,7 +18,7 @@ The backend is built using **Node.js** and **Express.js**, and it follows a scal
 * **Mongoose** (ODM)
 * **REST API**
 
----
+
 
 ## 📂 Project Structure
 
@@ -34,7 +34,7 @@ backend_project/
 │── package.json
 ```
 
----
+
 
 ## ⚙️ Installation & Setup
 
@@ -62,7 +62,7 @@ npm install
 node server.js
 ```
 
----
+
 
 ## 🔐 API Endpoints
 
@@ -76,7 +76,7 @@ node server.js
 * **POST** `/api/auth/register`
   ✔️ Registers a new user with name, email, and password
 
----
+
 
 ## 📌 Features Implemented
 
@@ -86,20 +86,20 @@ node server.js
 * Basic user registration API
 * API testing using Postman
 
----
+
 
 ## 🚀 Upcoming Features
 
 * 🔐 User Login System (JWT Authentication)
 * 🔒 Password Hashing using bcrypt
 
----
+
 
 ## 🧪 Testing
 
 * APIs are tested using **Postman**
 * JSON-based request handling enabled
 
----
+
 
 
